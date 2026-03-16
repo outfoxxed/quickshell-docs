@@ -163,7 +163,7 @@ impl CppParser {
 			class_regex: Regex::new(r#"(?<comment>(\s*\/\/\/.*\n)+)?\s*class\s+(?<name>\w+)(?:\s*:\s*public\s+((?<super>\w+)(<.+>)?)(\s*,(\s*\w+)*)*)?\s*\{(?<body>[\s\S]*?)(?!};\s*Q_ENUM)};"#).unwrap(),
 			macro_regex: Regex::new(r#"(?<comment>(\s*\/\/\/.*\n)+)?\s*(?<hide>QSDOC_HIDE\s)?(?<type>(Q|QML|QSDOC)_\w+)\s*(\(\s*(?<args>.*)\s*\))?;"#).unwrap(),
 			property_regex: Regex::new(r#"^\s*(?<type>(\w|::|, |<|>|\*)+)\*?\s+(?<name>\w+)(\s+(MEMBER\s+(?<member>\w+)|READ\s+(?<read>\w+)|WRITE\s+(?<write>\w+)|RESET\s+(?<reset>\w+)|NOTIFY\s+(?<notify>\w+)|BINDABLE\s+(?<bindable>\w+)|(?<const>CONSTANT)|(?<final>FINAL)))+\s*$"#).unwrap(),
-			fn_regex: Regex::new(r#"(?<comment>(\s*\/\/\/.*\n)+)?\s*(?<hide>QSDOC_HIDE\s)?(\/\/@\s+)?Q_INVOKABLE\s+(\[\[.*\]\]\s+)?(static\s+)?(?<type>(\w|::|<|>)+\*?)\s+(?<name>\w+)\((?<params>[\s\S]*?)\)(\s*const)?;"#).unwrap(),
+			fn_regex: Regex::new(r#"(?<comment>(\s*\/\/\/.*\n)+)?\s*(?<hide>QSDOC_HIDE\s)?(\/\/@\s+)?Q_INVOKABLE\s+(\[\[.*\]\]\s+)?(static\s+)?(virtual\s+)?(?<type>(\w|::|<|>)+\*?)\s+(?<name>\w+)\((?<params>[\s\S]*?)\)(\s*const)?\s*[;{]"#).unwrap(),
 			signal_regex: Regex::new(r#"(?<comment>(\s*\/\/\/.*\n)+)?\s*void\s+(?<name>\w+)\((?<params>[\s\S]*?)\);"#).unwrap(),
 			fn_param_regex: Regex::new(r#"(const\s+)?(?<type>(\w|::|<|>)+\*?)&?\s+(?<name>\w+)(,|$)"#).unwrap(),
 			signals_regex: Regex::new(r#"signals:(?<signals>(\s*(\s*///.*\s*)*void .*;)*)"#).unwrap(),
