@@ -123,7 +123,7 @@ pub fn resolve_types(
 
 			match qtype {
 				Some((module, name)) => {
-					let mut t = outform::Type::resolve(module.as_ref().map(|v| v as &str), &name);
+					let mut t = outform::Type::resolve(module.as_ref().map(|v| v as &str), name);
 					t.of = of;
 					t
 				},

@@ -38,7 +38,7 @@ impl ReformatPass for TypeLinks {
 	fn reformat(&self, context: &Context, text: &mut String) {
 		let lines = text.lines().map(|line| {
 			if line.contains("@@") {
-				let mut src: &str = &*line;
+				let mut src: &str = line;
 				let mut accum = String::new();
 
 				while let Some(i) = src.find("@@") {
@@ -62,7 +62,7 @@ impl ReformatPass for TypeLinks {
 								.find(|(sc, _)| char == *sc)
 								.map(|(_, strip)| (i + if *strip { 1 } else { 0 }, &src[..i]))
 						})
-						.unwrap_or_else(|| (src.len(), src));
+						.unwrap_or((src.len(), src));
 
 					// special case for . as it is contained in valid types as well
 					if ty.ends_with('.') {
@@ -76,18 +76,15 @@ impl ReformatPass for TypeLinks {
 						Some(_) => {
 							let mut split = ty.rsplit_once('.').unwrap_or(("", ty));
 
-							let member = split
-								.1
-								.chars()
-								.next()
-								.unwrap()
-								.is_lowercase()
-								.then(|| {
+							let member = if split.1.chars().next().unwrap().is_lowercase() {
+								{
 									let prop = split.1;
 									split = split.0.rsplit_once('.').unwrap_or(("", split.0));
 									prop
-								})
-								.unwrap_or("");
+								}
+							} else {
+								""
+							};
 
 							let (mut module, name) = split;
 
@@ -132,9 +129,9 @@ impl ReformatPass for TypeLinks {
 
 				accum += src;
 
-				return Cow::Owned(accum);
+				Cow::Owned(accum)
 			} else {
-				return Cow::Borrowed(line);
+				Cow::Borrowed(line)
 			}
 		});
 

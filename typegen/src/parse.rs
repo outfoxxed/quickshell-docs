@@ -25,7 +25,7 @@ pub struct ModuleInfo<'a> {
 	pub details: &'a str,
 }
 
-pub fn parse_module(text: &str) -> anyhow::Result<ModuleInfo> {
+pub fn parse_module(text: &str) -> anyhow::Result<ModuleInfo<'_>> {
 	let Some((mut header, mut details)) = text.split_once("-----") else {
 		bail!("could not split module header");
 	};
@@ -217,7 +217,7 @@ impl CppParser {
 					let comment = macro_
 						.name("comment")
 						.map(|m| m.as_str())
-						.or(carryover.as_ref().map(|c| c.comment).flatten());
+						.or(carryover.as_ref().and_then(|c| c.comment));
 					let type_ = macro_.name("type").unwrap().as_str();
 					let args = macro_.name("args").map(|m| m.as_str());
 
@@ -275,8 +275,7 @@ impl CppParser {
 									type_: Cow::Borrowed(
 										this_carryover
 											.as_ref()
-											.map(|c| c.type_override)
-											.flatten()
+											.and_then(|c| c.type_override)
 											.unwrap_or_else(|| prop.name("type").unwrap().as_str()),
 									),
 									name: prop.name("name").unwrap().as_str(),
@@ -411,7 +410,7 @@ impl CppParser {
 				type_,
 				name,
 				qml_name,
-				superclass: superclass.map(|s| Cow::Borrowed(s)),
+				superclass: superclass.map(Cow::Borrowed),
 				singleton,
 				uncreatable: uncreatable && !force_creatable,
 				comment: comment.map(|v| Comment::new(v, ctx.module)),
@@ -447,16 +446,13 @@ impl CppParser {
 				let args = macro_.name("args").map(|m| m.as_str());
 
 				(|| {
-					match type_ {
-						"Q_DECLARE_FLAGS" => {
-							enum_name = args
-								.expect("Q_DECLARE_FLAGS must have arguments")
-								.split_once(',')
-								.expect("Q_DECLARE_FLAGS must have two arguments")
-								.0
-								.trim();
-						},
-						_ => {},
+					if type_ == "Q_DECLARE_FLAGS" {
+						enum_name = args
+							.expect("Q_DECLARE_FLAGS must have arguments")
+							.split_once(',')
+							.expect("Q_DECLARE_FLAGS must have two arguments")
+							.0
+							.trim();
 					}
 
 					Ok::<_, anyhow::Error>(())
@@ -784,7 +780,7 @@ fn parse_details(comment: Comment) -> String {
 			seen_content |= any;
 			filter
 		})
-		.fold(String::new(), |accum, line| accum + line.as_ref() + "\n");
+		.fold(String::new(), |accum, line| accum + line + "\n");
 
 	let reformat_ctx = reformat::Context {
 		module: comment.module,

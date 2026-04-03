@@ -1,7 +1,4 @@
-use std::{
-	collections::HashMap,
-	path::{Path, PathBuf},
-};
+use std::{collections::HashMap, path::Path};
 
 use anyhow::{anyhow, Context};
 use walkdir::WalkDir;
@@ -140,23 +137,17 @@ fn gentypes(modinfo: &str, outpath: &str) -> anyhow::Result<()> {
 	let qml_parser = parse::QmlParser::new();
 	let mut ctx = parse::ParseContext::new(&module.header.name);
 
-	texts
-		.iter()
-		.map(|(header, text)| {
-			header_parser
-				.parse(&text, &mut ctx)
-				.with_context(|| format!("while parsing module header `{header}`"))
-		})
-		.collect::<Result<_, _>>()?;
+	texts.iter().try_for_each(|(header, text)| {
+		header_parser
+			.parse(text, &mut ctx)
+			.with_context(|| format!("while parsing module header `{header}`"))
+	})?;
 
-	qml_texts
-		.iter()
-		.map(|(file, text)| {
-			qml_parser
-				.parse(&file, &text, &mut ctx)
-				.with_context(|| format!("while parsing module qml file `{file}`"))
-		})
-		.collect::<Result<_, _>>()?;
+	qml_texts.iter().try_for_each(|(file, text)| {
+		qml_parser
+			.parse(file, text, &mut ctx)
+			.with_context(|| format!("while parsing module qml file `{file}`"))
+	})?;
 
 	let typespec = ctx.gen_typespec(&module.header.name);
 
@@ -178,7 +169,7 @@ fn gendocs(
 
 	for path in typepaths {
 		let text =
-			std::fs::read_to_string(&path).with_context(|| anyhow!("attempting to read {path}"))?;
+			std::fs::read_to_string(path).with_context(|| anyhow!("attempting to read {path}"))?;
 
 		let ts = serde_json::from_str::<typespec::TypeSpec>(&text)
 			.with_context(|| anyhow!("attempting to parse {path}"))?;
@@ -239,7 +230,7 @@ hidetitle = true
 		name = module.header.name
 	);
 
-	let templatepath = templatepath.join(format!("_index.md"));
+	let templatepath = templatepath.join("_index.md");
 	std::fs::write(&templatepath, template)
 		.with_context(|| format!("while writing {templatepath:?}"))
 }

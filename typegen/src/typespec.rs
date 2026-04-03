@@ -1,22 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct TypeSpec {
 	pub typemap: Vec<QmlTypeMapping>,
 	pub classes: Vec<Class>,
 	pub gadgets: Vec<Gadget>,
 	pub enums: Vec<Enum>,
-}
-
-impl Default for TypeSpec {
-	fn default() -> Self {
-		Self {
-			typemap: Vec::new(),
-			classes: Vec::new(),
-			gadgets: Vec::new(),
-			enums: Vec::new(),
-		}
-	}
 }
 
 #[derive(Debug, Serialize, Deserialize)]
