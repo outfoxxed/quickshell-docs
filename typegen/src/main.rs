@@ -147,7 +147,7 @@ fn gentypes(modinfo: &str, outpath: &str) -> anyhow::Result<()> {
 				.parse(&text, &mut ctx)
 				.with_context(|| format!("while parsing module header `{header}`"))
 		})
-		.collect::<Result<_, _>>()?;
+			.collect::<Result<(), _>>()?;
 
 	qml_texts
 		.iter()
@@ -156,7 +156,7 @@ fn gentypes(modinfo: &str, outpath: &str) -> anyhow::Result<()> {
 				.parse(&file, &text, &mut ctx)
 				.with_context(|| format!("while parsing module qml file `{file}`"))
 		})
-		.collect::<Result<_, _>>()?;
+			.collect::<Result<(), _>>()?;
 
 	let typespec = ctx.gen_typespec(&module.header.name);
 
